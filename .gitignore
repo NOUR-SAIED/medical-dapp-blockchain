@@ -1,6 +1,22 @@
-node_modules
-.idea
+# Dependency directories
+node_modules/
+frontend/node_modules/
 
-#Hardhat files
-cache
-artifacts
+# Hardhat files
+cache/
+artifacts/
+typechain/
+coverage/
+coverage.json
+
+# Security - NEVER UPLOAD THESE
+.env
+.env.local
+frontend/.env
+
+# React Production Build
+frontend/build/
+
+# System Files
+.DS_Store
+Thumbs.db

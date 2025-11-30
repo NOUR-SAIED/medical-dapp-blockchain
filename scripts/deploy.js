@@ -1,55 +1,41 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
-
+const { ethers, artifacts } = require("hardhat");
 const path = require("path");
+const fs = require("fs");
 
 async function main() {
-  // This is just a convenience check
-  if (network.name === "hardhat") {
-    console.warn(
-      "You are trying to deploy a contract to the Hardhat Network, which" +
-        "gets automatically created and destroyed every time. Use the Hardhat" +
-        " option '--network localhost'"
-    );
-  }
+  // 1. Tell Hardhat specifically to look for "PatientAccess"
+  const PatientAccess = await ethers.getContractFactory("PatientAccess");
+  
+  // 2. Deploy it
+  console.log("Deploying PatientAccess...");
+  const patientAccess = await PatientAccess.deploy();
+  await patientAccess.deployed();
 
-  // ethers is available in the global scope
-  const [deployer] = await ethers.getSigners();
-  console.log(
-    "Deploying the contracts with the account:",
-    await deployer.getAddress()
-  );
+  console.log("✅ PatientAccess deployed to:", patientAccess.address);
 
-  console.log("Account balance:", (await deployer.getBalance()).toString());
-
-  const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy();
-  await token.deployed();
-
-  console.log("Token address:", token.address);
-
-  // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(token);
+  // 3. Save the address to the frontend
+  saveFrontendFiles(patientAccess);
 }
 
-function saveFrontendFiles(token) {
-  const fs = require("fs");
+function saveFrontendFiles(contract) {
   const contractsDir = path.join(__dirname, "..", "frontend", "src", "contracts");
 
   if (!fs.existsSync(contractsDir)) {
-    fs.mkdirSync(contractsDir);
+    fs.mkdirSync(contractsDir, { recursive: true });
   }
 
+  // Save Address
   fs.writeFileSync(
     path.join(contractsDir, "contract-address.json"),
-    JSON.stringify({ Token: token.address }, undefined, 2)
+    JSON.stringify({ PatientAccess: contract.address }, undefined, 2)
   );
 
-  const TokenArtifact = artifacts.readArtifactSync("Token");
+  // Save ABI (The Instructions)
+  const Artifact = artifacts.readArtifactSync("PatientAccess");
 
   fs.writeFileSync(
-    path.join(contractsDir, "Token.json"),
-    JSON.stringify(TokenArtifact, null, 2)
+    path.join(contractsDir, "PatientAccess.json"),
+    JSON.stringify(Artifact, null, 2)
   );
 }
 
